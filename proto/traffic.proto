@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package traffic;
+
+service TrafficService {
+  rpc GetAllTraffic (CityRequest) returns (TrafficList);
+  rpc GetTrafficById (TrafficIdRequest) returns (Traffic);
+  rpc CreateTraffic (CreateTrafficRequest) returns (Traffic);
+  rpc UpdateTraffic (UpdateTrafficRequest) returns (Traffic);
+  rpc DeleteTraffic (TrafficIdRequest) returns (DeleteResponse);
+}
+
+message CityRequest {
+  string city = 1;
+}
+
+message TrafficIdRequest {
+  string id = 1;
+}
+
+message Traffic {
+  string id = 1;
+  string city = 2;
+  string zone = 3;
+  string status = 4;        // FREE, MODERATE, CONGESTED, BLOCKED
+  int32 congestion_level = 5; // 0-100
+  string road_condition = 6; // NORMAL, DANGEROUS, WET
+  string updated_at = 7;
+}
+
+message TrafficList {
+  repeated Traffic traffic = 1;
+}
+
+message CreateTrafficRequest {
+  string city = 1;
+  string zone = 2;
+  string status = 3;
+  int32 congestion_level = 4;
+  string road_condition = 5;
+}
+
+message UpdateTrafficRequest {
+  string id = 1;
+  string status = 2;
+  int32 congestion_level = 3;
+  string road_condition = 4;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -1,0 +1,241 @@
+# REST API Endpoints
+
+Base URL: `http://localhost:3000`
+
+## Health Check
+
+```bash
+curl http://localhost:3000/health
+```
+
+---
+
+## Traffic Endpoints
+
+### GET /api/traffic
+Get all traffic records (optional city filter)
+```bash
+curl http://localhost:3000/api/traffic
+curl "http://localhost:3000/api/traffic?city=Tunis"
+```
+
+### GET /api/traffic/:id
+Get traffic record by ID
+```bash
+curl http://localhost:3000/api/traffic/550e8400-e29b-41d4-a716-446655440000
+```
+
+### POST /api/traffic
+Create a new traffic record
+```bash
+curl -X POST http://localhost:3000/api/traffic \
+  -H "Content-Type: application/json" \
+  -d '{
+    "city": "Tunis",
+    "zone": "Centre-Ville",
+    "status": "CONGESTED",
+    "congestion_level": 80,
+    "road_condition": "NORMAL"
+  }'
+```
+
+Status values: `FREE`, `MODERATE`, `CONGESTED`, `BLOCKED`
+Road condition values: `NORMAL`, `DANGEROUS`, `WET`
+
+### PUT /api/traffic/:id
+Update a traffic record
+```bash
+curl -X PUT http://localhost:3000/api/traffic/RECORD_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "BLOCKED",
+    "congestion_level": 95,
+    "road_condition": "DANGEROUS"
+  }'
+```
+
+### DELETE /api/traffic/:id
+Delete a traffic record
+```bash
+curl -X DELETE http://localhost:3000/api/traffic/RECORD_ID
+```
+
+---
+
+## Parking Endpoints
+
+### GET /api/parkings
+Get all parking lots (optional city filter)
+```bash
+curl http://localhost:3000/api/parkings
+curl "http://localhost:3000/api/parkings?city=Tunis"
+```
+
+### GET /api/parkings/:id
+Get parking by ID
+```bash
+curl http://localhost:3000/api/parkings/PARKING_ID
+```
+
+### POST /api/parkings
+Create a new parking lot
+```bash
+curl -X POST http://localhost:3000/api/parkings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Parking Centre Commercial",
+    "city": "Tunis",
+    "zone": "Lac",
+    "total_spots": 300,
+    "available_spots": 150
+  }'
+```
+
+### PUT /api/parkings/:id
+Update available spots
+```bash
+curl -X PUT http://localhost:3000/api/parkings/PARKING_ID \
+  -H "Content-Type: application/json" \
+  -d '{"available_spots": 0}'
+```
+
+Setting available_spots to 0 triggers PARKING_FULL Kafka event.
+
+### DELETE /api/parkings/:id
+Delete a parking lot
+```bash
+curl -X DELETE http://localhost:3000/api/parkings/PARKING_ID
+```
+
+---
+
+## Incident Endpoints
+
+### GET /api/incidents
+Get all incidents (optional city filter)
+```bash
+curl http://localhost:3000/api/incidents
+curl "http://localhost:3000/api/incidents?city=Tunis"
+```
+
+### GET /api/incidents/:id
+Get incident by ID
+```bash
+curl http://localhost:3000/api/incidents/INCIDENT_ID
+```
+
+### POST /api/incidents
+Create a new incident (triggers Kafka event)
+```bash
+curl -X POST http://localhost:3000/api/incidents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "city": "Tunis",
+    "zone": "Centre-Ville",
+    "type": "ACCIDENT",
+    "severity": "HIGH",
+    "description": "Multi-vehicle accident blocking main road"
+  }'
+```
+
+Type values: `ACCIDENT`, `EMERGENCY`, `ROAD_BLOCKED`, `WEATHER_ALERT`
+Severity values: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
+
+### PUT /api/incidents/:id
+Update incident (resolving triggers Kafka event)
+```bash
+curl -X PUT http://localhost:3000/api/incidents/INCIDENT_ID \
+  -H "Content-Type: application/json" \
+  -d '{"status": "RESOLVED"}'
+```
+
+### DELETE /api/incidents/:id
+Delete an incident
+```bash
+curl -X DELETE http://localhost:3000/api/incidents/INCIDENT_ID
+```
+
+---
+
+## Weather Endpoints
+
+### GET /api/weather
+Get all weather records (optional city filter)
+```bash
+curl http://localhost:3000/api/weather
+curl "http://localhost:3000/api/weather?city=Tunis"
+```
+
+### GET /api/weather/:id
+Get weather record by ID
+```bash
+curl http://localhost:3000/api/weather/WEATHER_ID
+```
+
+### POST /api/weather
+Create a weather record (dangerous conditions trigger Kafka cascade)
+```bash
+# Normal weather
+curl -X POST http://localhost:3000/api/weather \
+  -H "Content-Type: application/json" \
+  -d '{
+    "city": "Tunis",
+    "temperature": 22.5,
+    "wind_speed": 15,
+    "rainfall": 0,
+    "condition": "CLEAR"
+  }'
+
+# DANGEROUS weather (triggers cascade: traffic DANGEROUS + auto WEATHER_ALERT incident + notifications)
+curl -X POST http://localhost:3000/api/weather \
+  -H "Content-Type: application/json" \
+  -d '{
+    "city": "Tunis",
+    "temperature": 12.0,
+    "wind_speed": 95,
+    "rainfall": 80,
+    "condition": "STORM"
+  }'
+```
+
+Condition values: `CLEAR`, `CLOUDY`, `RAIN`, `STORM`, `FOG`, `SNOW`
+Dangerous triggers: wind_speed > 80 OR rainfall > 50 OR condition in [STORM, FOG]
+
+### PUT /api/weather/:id
+Update weather record
+```bash
+curl -X PUT http://localhost:3000/api/weather/WEATHER_ID \
+  -H "Content-Type: application/json" \
+  -d '{"condition": "STORM", "wind_speed": 90}'
+```
+
+### DELETE /api/weather/:id
+Delete a weather record
+```bash
+curl -X DELETE http://localhost:3000/api/weather/WEATHER_ID
+```
+
+---
+
+## Notification Endpoints
+
+Notifications are auto-generated by the Notification Service from Kafka events.
+
+### GET /api/notifications
+Get all notifications (optional city filter)
+```bash
+curl http://localhost:3000/api/notifications
+curl "http://localhost:3000/api/notifications?city=Tunis"
+```
+
+### GET /api/notifications/:id
+Get notification by ID
+```bash
+curl http://localhost:3000/api/notifications/NOTIF_ID
+```
+
+### DELETE /api/notifications/:id
+Delete a notification
+```bash
+curl -X DELETE http://localhost:3000/api/notifications/NOTIF_ID
+```

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package incident;
+
+service IncidentService {
+  rpc GetAllIncidents (CityRequest) returns (IncidentList);
+  rpc GetIncidentById (IncidentIdRequest) returns (Incident);
+  rpc CreateIncident (CreateIncidentRequest) returns (Incident);
+  rpc UpdateIncident (UpdateIncidentRequest) returns (Incident);
+  rpc DeleteIncident (IncidentIdRequest) returns (DeleteResponse);
+}
+
+message CityRequest {
+  string city = 1;
+}
+
+message IncidentIdRequest {
+  string id = 1;
+}
+
+message Incident {
+  string id = 1;
+  string city = 2;
+  string zone = 3;
+  string type = 4;         // ACCIDENT, EMERGENCY, ROAD_BLOCKED, WEATHER_ALERT
+  string severity = 5;     // LOW, MEDIUM, HIGH, CRITICAL
+  string description = 6;
+  string status = 7;       // ACTIVE, RESOLVED
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message IncidentList {
+  repeated Incident incidents = 1;
+}
+
+message CreateIncidentRequest {
+  string city = 1;
+  string zone = 2;
+  string type = 3;
+  string severity = 4;
+  string description = 5;
+}
+
+message UpdateIncidentRequest {
+  string id = 1;
+  string status = 2;
+  string severity = 3;
+  string description = 4;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}

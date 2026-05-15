@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package parking;
+
+service ParkingService {
+  rpc GetAllParkings (CityRequest) returns (ParkingList);
+  rpc GetParkingById (ParkingIdRequest) returns (Parking);
+  rpc CreateParking (CreateParkingRequest) returns (Parking);
+  rpc UpdateParking (UpdateParkingRequest) returns (Parking);
+  rpc DeleteParking (ParkingIdRequest) returns (DeleteResponse);
+}
+
+message CityRequest {
+  string city = 1;
+}
+
+message ParkingIdRequest {
+  string id = 1;
+}
+
+message Parking {
+  string id = 1;
+  string name = 2;
+  string city = 3;
+  string zone = 4;
+  int32 total_spots = 5;
+  int32 available_spots = 6;
+  bool is_full = 7;
+  string updated_at = 8;
+}
+
+message ParkingList {
+  repeated Parking parkings = 1;
+}
+
+message CreateParkingRequest {
+  string name = 1;
+  string city = 2;
+  string zone = 3;
+  int32 total_spots = 4;
+  int32 available_spots = 5;
+}
+
+message UpdateParkingRequest {
+  string id = 1;
+  int32 available_spots = 2;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}
