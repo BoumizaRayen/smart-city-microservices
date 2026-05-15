@@ -1,0 +1,16 @@
+{
+  "name": "smart-city-microservices",
+  "version": "1.0.0",
+  "description": "Smart City platform using Node.js microservices",
+  "private": true,
+  "scripts": {
+    "dev:gateway": "cd api-gateway && npm run dev",
+    "dev:traffic": "cd services/traffic-service && npm run dev",
+    "dev:parking": "cd services/parking-service && npm run dev",
+    "dev:incident": "cd services/incident-service && npm run dev",
+    "dev:weather": "cd services/weather-service && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "seed": "node scripts/seed.js",
+    "docker:up": "docker-compose up -d"
+  }
+}
