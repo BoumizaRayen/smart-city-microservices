@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package notification;
+
+service NotificationService {
+  rpc GetAllNotifications (CityRequest) returns (NotificationList);
+  rpc GetNotificationById (NotificationIdRequest) returns (Notification);
+  rpc DeleteNotification (NotificationIdRequest) returns (DeleteResponse);
+}
+
+message CityRequest {
+  string city = 1;
+}
+
+message NotificationIdRequest {
+  string id = 1;
+}
+
+message Notification {
+  string id = 1;
+  string city = 2;
+  string type = 3;
+  string title = 4;
+  string message = 5;
+  string source_event = 6;
+  string created_at = 7;
+}
+
+message NotificationList {
+  repeated Notification notifications = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}
